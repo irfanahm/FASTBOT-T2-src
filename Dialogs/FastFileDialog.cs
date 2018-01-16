@@ -397,7 +397,7 @@ namespace FASTBOT.Dialogs
                                 // SellerButton = new List<CardAction> { new CardAction(ActionTypes.OpenUrl, "Sellers Info", value: "https://docs.microsoft.com/bot-framework") }
                             };
                             message1.Attachments.Add(heroCard.ToAttachment());
-                            context.PostAsync(message1);
+                            context.PostAsync(message1); 
                             Thread.Sleep(400);
                             this.ShowOptions(context);
 
