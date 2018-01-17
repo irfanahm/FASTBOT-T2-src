@@ -52,7 +52,10 @@ namespace FASTBOT.Dialogs
         [LuisIntent("Greeting")]
         public async Task Greeting(IDialogContext context, LuisResult result)
         {
+            var message = context.MakeMessage();
+            message.Text = "test";
             context.Call(new GreetingsDialog(), callback);
+            //await context.Forward(new LUISFastFileDialog(), callback,message);
         }
 
         [LuisIntent("FileInfo")]
@@ -60,9 +63,12 @@ namespace FASTBOT.Dialogs
         {
             string temp = LUISmessage.Text;
             List<EntityRecommendation> entities = result.Entities.ToList();
-            context.Call(new FastFileDialog(temp,entities),callback);
- 
-             //await context.Forward(new FastFileDialog(), this.callback, result.Dialog, System.Threading.CancellationToken.None);
+            // context.Call(new FastFileDialog(temp,entities),callback);
+            var message = context.MakeMessage();
+            message.Text = temp;
+            await context.Forward(new LUISFastFileDialog(temp,entities), callback, message);
+             
+             
 
         }
 

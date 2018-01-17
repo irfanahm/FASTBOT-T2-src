@@ -41,6 +41,8 @@ namespace FASTBOT.Dialogs
         private const string StatusOption = "status";
 
         List<EntityRecommendation> FileEntities = null;
+ 
+
         public FastFileDialog(string message, List<EntityRecommendation> entities)
         {
             this.msgtxt = message;
@@ -51,61 +53,70 @@ namespace FASTBOT.Dialogs
          
         {
             context.PrivateConversationData.SetValue("Help1", "File");
-            if (msgtxt.Length == 5 && bFileNumberOnlyInMessage(msgtxt))
+            try
             {
-                FileNumber = msgtxt;
-                await context.SayAsync("You want me to get information for File no: " + FileNumber + "?", "You want me to get information for File number: " + FileNumber + "?");
-                context.Wait(ConfirmAndShowFileInformationAsync);
-
-              
-            }
-            else if(msgtxt.Length < 5)
-            {
-                await context.SayAsync("Please enter valid File No.", "Please Enter valid File Number");
-                context.Wait(ManageFileNumber);
-            }
-
-            else if (msgtxt.Length > 5)
-            {
-                try
+                if (msgtxt.Length == 5 && bFileNumberOnlyInMessage(msgtxt))
                 {
-                    Regex FileNo = new Regex(@"\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d");
-                    Match m = FileNo.Match(msgtxt);
-                    if (m.Success)
+                    FileNumber = msgtxt;
+                    await context.SayAsync("You want me to get information for File no: " + FileNumber + "?", "You want me to get information for File number: " + FileNumber + "?");
+                    context.Wait(ConfirmAndShowFileInformationAsync);
+                    context.Done("Dine");
+
+
+                }
+                else if (msgtxt.Length < 5)
+                {
+                    await context.SayAsync("Please enter valid File No.", "Please Enter valid File Number");
+                    context.Wait(ManageFileNumber);
+                }
+
+                else if (msgtxt.Length > 5)
+                {
+                    try
                     {
-                        string tempFileNo = m.Value.Trim();
-                        if (tempFileNo.Length == 5)
+                        Regex FileNo = new Regex(@"\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d");
+                        Match m = FileNo.Match(msgtxt);
+                        if (m.Success)
                         {
+                            string tempFileNo = m.Value.Trim();
+                            if (tempFileNo.Length == 5)
+                            {
 
-                            FileNumber = tempFileNo.ToString();
-                            await context.SayAsync("You want me to get information for File no: " + FileNumber + "?",
-                                "You want me to get information for File number: " + FileNumber + "?");
+                                FileNumber = tempFileNo.ToString();
+                                await context.SayAsync("You want me to get information for File no: " + FileNumber + "?",
+                                    "You want me to get information for File number: " + FileNumber + "?");
 
-                            context.Wait(ConfirmAndShowFileInformationAsync);
+                                context.Wait(ConfirmAndShowFileInformationAsync);
+                            }
+                            else
+                            {
+                                await context.SayAsync("Couldn't get 5 digit file number. Please enter valid file number.", "Couldn't get 5 digit file number. Please enter valid file number.");
+                                await context.SayAsync("Please enter File No.", "Please Enter File Number");
+                                context.Wait(ManageFileNumber);
+                            }
+
                         }
                         else
                         {
-                            await context.SayAsync("Couldn't get 5 digit file number. Please enter valid file number.", "Couldn't get 5 digit file number. Please enter valid file number.");
                             await context.SayAsync("Please enter File No.", "Please Enter File Number");
                             context.Wait(ManageFileNumber);
                         }
-
                     }
-                    else
+
+                    catch (Exception ex)
                     {
-                        await context.SayAsync("Please enter File No.", "Please Enter File Number");
-                        context.Wait(ManageFileNumber);
+                        await context.PostAsync(ex.Message);
                     }
-                }
 
-                catch (Exception ex)
-                {
-                    await context.PostAsync(ex.Message);
                 }
 
             }
-             
+            catch(Exception ex)
+            {
+                context.SayAsync(ex.InnerException.ToString());
 
+            }
+         
 
         }
 
@@ -117,7 +128,8 @@ namespace FASTBOT.Dialogs
             {
                 //context.Wait(ShowFileInformationAsync);
                 ShowFileInformationAsync(context);
-               // context.Done ("complete");
+               if( FileEntities!=null && FileEntities.Count>2) // setting this condition where we believe that flow is over as we found specific entities to show info
+                     context.Done ("complete");
 
             }
             else if(msgtxt.ToLower().Contains("no") || msgtxt.ToLower().Contains("nah") || msgtxt.ToUpper().Equals("N")|| msgtxt.ToLower().Contains("ignore"))
@@ -327,7 +339,7 @@ namespace FASTBOT.Dialogs
                                         var SellerMessage = context.MakeMessage();
                                         var heroCard = new HeroCard
                                         {
-                                            Title = "Buyer Details for file : " + FileNumber,
+                                            Title = "Seller Details for file : " + FileNumber,
                                             //Subtitle = FileDetails.Status,
                                             Text = "First Name: " + seller.FirstName + "\n\n" + "Last Name: " + seller.LastName + "\n\n" + "Email Id: " + seller.Email + "\n\n" + "Phone Number: " + seller.PhoneNumber + "\n\n" + "Address: " + seller.PostalAddress + "\n\n",
                                             //Images = new List<CardImage> { new CardImage("https://sec.ch9.ms/ch9/7ff5/e07cfef0-aa3b-40bb-9baa-7c9ef8ff7ff5/buildreactionbotframework_960.jpg") },
@@ -359,7 +371,7 @@ namespace FASTBOT.Dialogs
                             }
                         }
                         if(!bEntityFound)
-                        { 
+                        {
                             strMsg += "\n\n\n\n";
                             strMsg = "Staus: " + FileDetails.Status.ToString() + "\n\n";
 
@@ -404,7 +416,7 @@ namespace FASTBOT.Dialogs
                         } //else of bEntityFound
                         else
                         {
-                            context.Done("Done");
+                            //context.Done("Done");
                         }
 
 
@@ -421,6 +433,10 @@ namespace FASTBOT.Dialogs
             catch (Exception ex)
             {
                  context.PostAsync(ex.Message);
+            }
+            finally
+            {
+                 
             }
         }
 

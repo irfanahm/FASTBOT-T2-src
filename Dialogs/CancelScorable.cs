@@ -30,10 +30,10 @@
                 {
                     return message.Text;
                 }
-                if (message.Text.Equals("help", StringComparison.InvariantCultureIgnoreCase) || message.Text.Equals("support", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    return message.Text;
-                }
+                //if (message.Text.Equals("help", StringComparison.InvariantCultureIgnoreCase) || message.Text.Equals("support", StringComparison.InvariantCultureIgnoreCase))
+                //{
+                //    return message.Text;
+                //}
                 if (message.Text.Equals("exit", StringComparison.InvariantCultureIgnoreCase) ||
                     message.Text.Equals("abort", StringComparison.InvariantCultureIgnoreCase) || 
                     message.Text.Equals("start again", StringComparison.InvariantCultureIgnoreCase))
@@ -47,6 +47,7 @@
                 {
                     return message.Text;
                 }
+                
 
 
             }
